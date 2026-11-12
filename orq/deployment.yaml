@@ -36,7 +36,7 @@ spec:
               valueFrom: { secretKeyRef: { name: orq-db, key: PGSSLMODE } }
           volumeMounts: [{ name: ca, mountPath: /etc/orq, readOnly: true }]
           readinessProbe:
-            httpGet: { path: /slots, port: http } # answers only when the database does
+            httpGet: { path: "/slots?host=readiness", port: http } # a query: answers only when the database does
             periodSeconds: 10
           livenessProbe:
             tcpSocket: { port: http }
