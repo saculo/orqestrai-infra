@@ -1,0 +1,12 @@
+# Argo CD v3.6.1 with KSOPS (decrypts the *.private.yaml files with the age key in the Secret
+# sops-age, which the bootstrap creates), and the Image Updater v1.4.0.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: argocd
+resources:
+  - https://raw.githubusercontent.com/argoproj/argo-cd/v3.6.1/manifests/install.yaml
+  - https://raw.githubusercontent.com/argoproj-labs/argocd-image-updater/v1.4.0/config/install.yaml
+patches:
+  - path: repo-server-ksops.yaml
+  - path: argocd-cm.yaml
+  - path: image-updater-config.yaml

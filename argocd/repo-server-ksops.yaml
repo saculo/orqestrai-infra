@@ -1,0 +1,27 @@
+# KSOPS in the repo server (as in its README): an init container copies ksops and its
+# kustomize in; SOPS reads the age key from the Secret sops-age.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argocd-repo-server
+spec:
+  template:
+    spec:
+      volumes:
+        - name: custom-tools
+          emptyDir: {}
+        - name: sops-age
+          secret: { secretName: sops-age }
+      initContainers:
+        - name: install-ksops
+          image: viaductoss/ksops:v4.5.1
+          command: ["/usr/local/bin/ksops", "install", "--with-kustomize", "/custom-tools"]
+          volumeMounts: [{ mountPath: /custom-tools, name: custom-tools }]
+      containers:
+        - name: argocd-repo-server
+          env:
+            - { name: SOPS_AGE_KEY_FILE, value: /sops-age/keys.txt }
+          volumeMounts:
+            - { mountPath: /usr/local/bin/kustomize, name: custom-tools, subPath: kustomize }
+            - { mountPath: /usr/local/bin/ksops, name: custom-tools, subPath: ksops }
+            - { mountPath: /sops-age, name: sops-age, readOnly: true }

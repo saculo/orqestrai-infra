@@ -1,0 +1,17 @@
+# The Image Updater's GitHub login (a fine-grained token with Contents read and write on this
+# repository only), from OpenBao secret/argocd/image-updater: username and password.
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: git-creds
+  namespace: argocd
+spec:
+  refreshInterval: 1h
+  secretStoreRef: { kind: ClusterSecretStore, name: openbao }
+  target:
+    name: git-creds
+    template:
+      mergePolicy: Merge
+      data: { insecure: "false" } # verify GitHub's certificate (the default skips it)
+  dataFrom:
+    - extract: { key: argocd/image-updater }

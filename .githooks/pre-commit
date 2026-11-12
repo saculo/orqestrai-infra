@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Refuses a commit with a private value in plain text: this repository is public, and a pushed
+# value stays in its history. Enabled with `git config core.hooksPath .githooks`.
+exec "$(git rev-parse --show-toplevel)/scripts/check-private.sh"

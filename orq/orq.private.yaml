@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: Service
+metadata:
+    name: orq-serve
+    annotations:
+        tailscale.com/hostname: ENC[AES256_GCM,data:g9JVc7hGADutGQ==,iv:NnhMMXyuxZbs5w2gi3nU3PQf5gIOIKWyFOuGteFU2TA=,tag:p+kJtjzgT6HZ1MWOEYMWRg==,type:str]
+spec:
+    type: LoadBalancer
+    loadBalancerClass: tailscale
+    selector:
+        app: orq-serve
+    ports:
+        - name: http
+          port: 7400
+          targetPort: http
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA4RHhYVFFSa0lxcWVVVkY1
+            Q1NieXRSaWtlT0V0NUhDbXc0dmpSeTJ6cnpvCmtXMlRpdVgza2paeGFtdmZzaG9l
+            Uk1Ebkp6Y3ltbUxnWFRXVHM5VFFWTjgKLS0tIFRjN2hiNlBjRFNKUmJNVktlMERm
+            SFdoOUxLVjUvakZaQU0zNi90N0gwUDgKuMZZZ8fs01qh9IfEJF1MimCt4j8DUcs6
+            qObUE56w9hXxQD7ewzL1+zfwSWgbfuLezdYZ087qKuwtiynB41MAsw==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age1vkh2auyvkxgvt47gzs3a08tfy4akdp99fq8dshzh7kesejrm2desmz35wk
+    encrypted_regex: ^(cidr|tailscale\.com/hostname)$
+    lastmodified: "2026-11-12T21:17:37Z"
+    mac: ENC[AES256_GCM,data:+7Fm/LuxLWZ+/NuIAKq6e+htxhJzSRtV0WZS+4cw49KTCLyNfz0vahZHebwfLF1urqtRS81a77nGFutAs4ypU0GESXqJVSr+k45GLzTWbTRdF7B1RHOnQ8jqvqtWo6N5B2hC+o8AuZrxPsJ7cCH1HA18nuoiNUkrhWgmjnbAVuI=,iv:7x0HC/Vvwj/+oS/QqabW9UrfpYNlJGMWyPxJXHKqp9Q=,tag:49RIWhdbkzVn/R53eAGhjA==,type:str]
+    version: 3.13.3
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+    name: orq-serve
+spec:
+    podSelector:
+        matchLabels:
+            app: orq-serve
+    policyTypes:
+        - Ingress
+        - Egress
+    ingress:
+        - from:
+            - namespaceSelector:
+                matchLabels:
+                    kubernetes.io/metadata.name: tailscale
+          ports:
+            - port: 7400
+    egress:
+        - to:
+            - namespaceSelector:
+                matchLabels:
+                    kubernetes.io/metadata.name: kube-system
+          ports:
+            - port: 53
+              protocol: UDP
+            - port: 53
+              protocol: TCP
+        - to:
+            - ipBlock:
+                cidr: ENC[AES256_GCM,data:/gzQdM1W2eI6YCZI/xSl,iv:G42iS9OIBTL8sRkZwVlUVvK3bq1chA/1sFvYXRdktAY=,tag:WGJjBUJR0khadm6MmcsRsQ==,type:str]
+          ports:
+            - port: 5432
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA4RHhYVFFSa0lxcWVVVkY1
+            Q1NieXRSaWtlT0V0NUhDbXc0dmpSeTJ6cnpvCmtXMlRpdVgza2paeGFtdmZzaG9l
+            Uk1Ebkp6Y3ltbUxnWFRXVHM5VFFWTjgKLS0tIFRjN2hiNlBjRFNKUmJNVktlMERm
+            SFdoOUxLVjUvakZaQU0zNi90N0gwUDgKuMZZZ8fs01qh9IfEJF1MimCt4j8DUcs6
+            qObUE56w9hXxQD7ewzL1+zfwSWgbfuLezdYZ087qKuwtiynB41MAsw==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age1vkh2auyvkxgvt47gzs3a08tfy4akdp99fq8dshzh7kesejrm2desmz35wk
+    encrypted_regex: ^(cidr|tailscale\.com/hostname)$
+    lastmodified: "2026-11-12T21:17:37Z"
+    mac: ENC[AES256_GCM,data:+7Fm/LuxLWZ+/NuIAKq6e+htxhJzSRtV0WZS+4cw49KTCLyNfz0vahZHebwfLF1urqtRS81a77nGFutAs4ypU0GESXqJVSr+k45GLzTWbTRdF7B1RHOnQ8jqvqtWo6N5B2hC+o8AuZrxPsJ7cCH1HA18nuoiNUkrhWgmjnbAVuI=,iv:7x0HC/Vvwj/+oS/QqabW9UrfpYNlJGMWyPxJXHKqp9Q=,tag:49RIWhdbkzVn/R53eAGhjA==,type:str]
+    version: 3.13.3

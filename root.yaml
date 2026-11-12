@@ -1,0 +1,22 @@
+# The one Application applied by hand (the bootstrap); Argo CD takes everything else from apps/
+# in this repository.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/saculo/orqestrai-infra
+    targetRevision: main
+    path: apps
+    helm:
+      valuesObject:
+        revision: main # the same revision for every Application
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated: { prune: true, selfHeal: true }
+    retry: { limit: 10, backoff: { duration: 30s, maxDuration: 5m } } # the ImageUpdater waits for its CRD

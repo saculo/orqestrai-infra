@@ -1,0 +1,7 @@
+# Files named *.private.yaml: only the values under these keys are encrypted, the rest stays
+# readable. Comments are NOT encrypted, so these files have none (CI checks). Edit one with
+# `sops <file>`; Argo CD decrypts them with KSOPS.
+creation_rules:
+  - path_regex: \.private\.yaml$
+    encrypted_regex: ^(cidr|tailscale\.com/hostname)$
+    age: age1vkh2auyvkxgvt47gzs3a08tfy4akdp99fq8dshzh7kesejrm2desmz35wk

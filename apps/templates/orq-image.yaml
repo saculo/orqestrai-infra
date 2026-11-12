@@ -1,0 +1,24 @@
+# New orq releases: the Image Updater watches the image and commits each new 0.x version to
+# orq/kustomization.yaml on this branch, which Argo CD then deploys. 1.0.0 and later wait for
+# you: change the constraint here.
+apiVersion: argocd-image-updater.argoproj.io/v1alpha1
+kind: ImageUpdater
+metadata:
+  name: orq
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  writeBackConfig:
+    method: git:secret:git-creds # platform/image-updater-git.yaml
+    gitConfig:
+      branch: {{ .Values.revision }}
+      writeBackTarget: kustomization
+  applicationRefs:
+    - namePattern: orq
+      images:
+        - alias: orq
+          imageName: ghcr.io/saculo/orqestrai:0.x
+          commonUpdateSettings:
+            updateStrategy: semver

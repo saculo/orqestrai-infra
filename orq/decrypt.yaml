@@ -1,0 +1,10 @@
+# KSOPS decrypts orq.private.yaml (its hostname and the database's address are encrypted).
+apiVersion: viaduct.ai/v1
+kind: ksops
+metadata:
+  name: orq-private
+  annotations:
+    config.kubernetes.io/function: |
+      exec:
+        path: ksops
+files: [./orq.private.yaml]

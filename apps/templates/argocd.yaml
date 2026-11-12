@@ -1,0 +1,21 @@
+# Argo CD manages itself from argocd/: the upstream install, KSOPS for the private files, and
+# the Image Updater. First, before everything else.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/saculo/orqestrai-infra
+    targetRevision: {{ .Values.revision }}
+    path: argocd
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated: { prune: false, selfHeal: true } # never prune Argo CD's own resources
+    syncOptions: [ServerSideApply=true] # its CRDs are too big for client-side apply

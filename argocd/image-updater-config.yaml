@@ -1,0 +1,8 @@
+# Who the Image Updater's commits are from.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-image-updater-config
+data:
+  git.user: argocd-image-updater
+  git.email: noreply@argoproj.io
