@@ -1,0 +1,9 @@
+# orq's state: one SQLite file (and its -wal and -shm files) in ORQ_DATA. k3s's local-path volume, on the node.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: orq-data
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests: { storage: 1Gi }
