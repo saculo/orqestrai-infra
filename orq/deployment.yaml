@@ -1,10 +1,11 @@
-# orq serve. Non-root, read-only, no Kubernetes token; only the database login from orq-db.
+# orq serve. Non-root, read-only but for its state volume, no Kubernetes token.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: orq-serve
 spec:
   replicas: 1
+  strategy: { type: Recreate } # one orq serve at a time opens the SQLite file
   selector: { matchLabels: { app: orq-serve } }
   template:
     metadata:
@@ -14,6 +15,7 @@ spec:
       securityContext:
         runAsNonRoot: true
         runAsUser: 65532
+        fsGroup: 65532
         seccompProfile: { type: RuntimeDefault }
       containers:
         - name: orq
@@ -21,22 +23,10 @@ spec:
           args: [serve, --host, 0.0.0.0, --port, "7400"]
           ports: [{ name: http, containerPort: 7400 }]
           env:
-            - { name: PGSSLROOTCERT, value: /etc/orq/ca.crt }
-            - name: PGHOST
-              valueFrom: { secretKeyRef: { name: orq-db, key: PGHOST } }
-            - name: PGPORT
-              valueFrom: { secretKeyRef: { name: orq-db, key: PGPORT } }
-            - name: PGDATABASE
-              valueFrom: { secretKeyRef: { name: orq-db, key: PGDATABASE } }
-            - name: PGUSER
-              valueFrom: { secretKeyRef: { name: orq-db, key: PGUSER } }
-            - name: PGPASSWORD
-              valueFrom: { secretKeyRef: { name: orq-db, key: PGPASSWORD } }
-            - name: PGSSLMODE
-              valueFrom: { secretKeyRef: { name: orq-db, key: PGSSLMODE } }
-          volumeMounts: [{ name: ca, mountPath: /etc/orq, readOnly: true }]
+            - { name: ORQ_DATA, value: /data }
+          volumeMounts: [{ name: data, mountPath: /data }]
           readinessProbe:
-            httpGet: { path: "/slots?host=readiness", port: http } # a query: answers only when the database does
+            httpGet: { path: /tasks, port: http } # a query: answers only when the state file opens
             periodSeconds: 10
           livenessProbe:
             tcpSocket: { port: http }
@@ -49,8 +39,5 @@ spec:
             readOnlyRootFilesystem: true
             capabilities: { drop: [ALL] }
       volumes:
-        - name: ca
-          secret:
-            secretName: orq-db
-            optional: true
-            items: [{ key: ca.crt, path: ca.crt }]
+        - name: data
+          persistentVolumeClaim: { claimName: orq-data }
