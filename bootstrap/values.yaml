@@ -1,0 +1,9 @@
+# The branch of this repository that Argo CD deploys (set by root.yaml). The Image Updater
+# commits to it.
+revision: main
+
+# New images that deploy themselves (templates/image-updaters.yaml): the app (its folder in
+# apps/) and the image with its version constraint. The Image Updater commits each new version
+# to apps/<app>/kustomization.yaml. 1.0.0 and later wait for you: change the constraint here.
+imageUpdates:
+  - { app: orq, image: ghcr.io/saculo/orqestrai, constraint: 0.x }

@@ -1,5 +1,6 @@
-# The one Application applied by hand, once, on a new cluster; Argo CD takes everything else
-# from apps/ in this repository, root itself included (apps/templates/root.yaml).
+# root manages itself (app of apps): this copy of root.yaml is in the chart root deploys, so a
+# change to root (its path, its revision) is synced like any other Application. root.yaml is
+# applied by hand only once, on a new cluster.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -9,11 +10,11 @@ spec:
   project: default
   source:
     repoURL: https://github.com/saculo/orqestrai-infra
-    targetRevision: main
-    path: apps
+    targetRevision: {{ .Values.revision }}
+    path: bootstrap
     helm:
       valuesObject:
-        revision: main # the same revision for every Application
+        revision: {{ .Values.revision }} # the same revision for every Application
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd

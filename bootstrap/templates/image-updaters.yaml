@@ -1,0 +1,27 @@
+# New images deploy themselves: for each app in imageUpdates (values.yaml), the Image Updater
+# watches the image and commits each new version matching the constraint to the app's
+# kustomization.yaml on this branch, which Argo CD then deploys.
+{{- range .Values.imageUpdates }}
+---
+apiVersion: argocd-image-updater.argoproj.io/v1alpha1
+kind: ImageUpdater
+metadata:
+  name: {{ .app }}
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  writeBackConfig:
+    method: git:secret:git-creds # platform/config/image-updater-git.yaml
+    gitConfig:
+      branch: {{ $.Values.revision }}
+      writeBackTarget: kustomization
+  applicationRefs:
+    - namePattern: {{ .app }}
+      images:
+        - alias: {{ .app }}
+          imageName: {{ .image }}:{{ .constraint }}
+          commonUpdateSettings:
+            updateStrategy: semver
+{{- end }}
