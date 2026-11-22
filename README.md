@@ -8,6 +8,7 @@ apps/        the Argo CD Applications (a Helm chart; root.yaml points at it)
 argocd/      Argo CD itself, with KSOPS and the Image Updater
 platform/    the OpenBao store for External Secrets, the Tailscale login, network rules
 orq/         orq serve: Deployment, database login from OpenBao, Service on the tailnet
+preview/     one pull request's preview of a project (apps/templates/previews.yaml)
 ```
 
 - **Credentials** live in OpenBao, in the cluster. External Secrets copies each one into the
@@ -22,6 +23,12 @@ orq/         orq serve: Deployment, database login from OpenBao, Service on the 
   `ghcr.io/saculo/orqestrai` and commits each new `0.x` tag to `orq/kustomization.yaml`
   ([`apps/templates/orq-image.yaml`](apps/templates/orq-image.yaml)). `1.0.0` waits until the
   constraint there is changed by hand.
+
+- **Previews**: every open pull request of a project in `previews` ([`apps/values.yaml`](apps/values.yaml))
+  runs as `http://<project>-pr-<number>-app.<tailnet>.ts.net`: an ApplicationSet polls GitHub
+  for the pull requests and deploys the image the project's CI pushed for the head commit,
+  `ghcr.io/saculo/<project>:<sha>`. The app answers `/version` with that commit, so
+  whoever tests it knows when the preview is up to date. Closing the pull request deletes it.
 
 ## Working on it
 

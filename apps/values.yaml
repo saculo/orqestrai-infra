@@ -1,3 +1,8 @@
 # The branch of this repository that Argo CD deploys (set by root.yaml). The Image Updater
 # commits to it.
 revision: main
+
+# The projects with a preview per pull request (templates/previews.yaml). port: the app's port
+# in its image; the preview serves it on port 80.
+previews:
+  - { project: meal-prep, port: 8080 }

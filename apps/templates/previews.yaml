@@ -1,0 +1,43 @@
+# Previews: one per open pull request of a project, in its own namespace, on the tailnet as
+# <project>-pr-<number>-app (preview/). Argo CD polls GitHub for the pull requests (public repos:
+# no token) and runs the image the project's CI pushed for the PR's head commit,
+# ghcr.io/saculo/<project>:<sha>; until CI pushed it, the pod waits for the image. A closed or
+# merged PR's preview is deleted with its namespace.
+{{- range .Values.previews }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: {{ .project }}-previews
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - pullRequest:
+        github: { owner: saculo, repo: {{ .project }} }
+        requeueAfterSeconds: 120
+  template:
+    metadata:
+      name: '{{ .project }}-pr-{{`{{ .number }}`}}'
+      finalizers: [resources-finalizer.argocd.argoproj.io] # deleting the preview deletes what it made
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/saculo/orqestrai-infra
+        targetRevision: {{ $.Values.revision }}
+        path: preview
+        helm:
+          valuesObject:
+            name: '{{ .project }}-pr-{{`{{ .number }}`}}'
+            image: 'ghcr.io/saculo/{{ .project }}:{{`{{ .head_sha }}`}}'
+            port: {{ .port }}
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{ .project }}-pr-{{`{{ .number }}`}}'
+      syncPolicy:
+        automated: { prune: true, selfHeal: true }
+        retry: { limit: 10, backoff: { duration: 30s, maxDuration: 5m } }
+{{- end }}

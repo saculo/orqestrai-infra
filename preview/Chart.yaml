@@ -1,0 +1,4 @@
+apiVersion: v2
+name: preview
+description: One pull request's preview of a project's app, on the tailnet (apps/templates/previews.yaml)
+version: 0.1.0

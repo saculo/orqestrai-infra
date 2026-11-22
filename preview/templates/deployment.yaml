@@ -1,0 +1,33 @@
+# The app as its image runs it. Non-root, read-only, no Kubernetes token. Ready when /version
+# answers: a session waits until it returns the PR's head commit.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+  namespace: {{ .Values.name }}
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: app } }
+  template:
+    metadata:
+      labels: { app: app }
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        seccompProfile: { type: RuntimeDefault }
+      containers:
+        - name: app
+          image: {{ .Values.image }}
+          ports: [{ name: http, containerPort: {{ .Values.port }} }]
+          readinessProbe:
+            httpGet: { path: /version, port: http }
+            periodSeconds: 5
+          resources:
+            requests: { cpu: 10m, memory: 32Mi }
+            limits: { memory: 256Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: [ALL] }

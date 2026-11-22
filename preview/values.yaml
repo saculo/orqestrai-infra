@@ -1,0 +1,5 @@
+# Set by the ApplicationSet: <project>-pr-<number>, the image of the PR's head commit, the
+# app's port.
+name: ""
+image: ""
+port: 8080

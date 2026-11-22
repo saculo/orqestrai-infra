@@ -1,0 +1,15 @@
+# Only the tailnet (the Tailscale proxy) reaches the app; the app reaches only DNS, for now.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: app
+  namespace: {{ .Values.name }}
+spec:
+  podSelector: { matchLabels: { app: app } }
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from: [{ namespaceSelector: { matchLabels: { kubernetes.io/metadata.name: tailscale } } }]
+      ports: [{ port: {{ .Values.port }} }]
+  egress:
+    - to: [{ namespaceSelector: { matchLabels: { kubernetes.io/metadata.name: kube-system } } }]
+      ports: [{ port: 53, protocol: UDP }, { port: 53, protocol: TCP }]
