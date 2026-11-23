@@ -1,0 +1,23 @@
+# root manages itself (app of apps): this copy of root.yaml is in the chart root deploys, so a
+# change to root (its path, its revision) is synced like any other Application. root.yaml is
+# applied by hand only once, on a new cluster.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/saculo/orqestrai-infra
+    targetRevision: {{ .Values.revision }}
+    path: apps
+    helm:
+      valuesObject:
+        revision: {{ .Values.revision }} # the same revision for every Application
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated: { prune: true, selfHeal: true }
+    retry: { limit: 10, backoff: { duration: 30s, maxDuration: 5m } } # the ImageUpdater waits for its CRD

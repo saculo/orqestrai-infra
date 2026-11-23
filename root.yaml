@@ -1,5 +1,5 @@
-# The one Application applied by hand (the bootstrap); Argo CD takes everything else from apps/
-# in this repository.
+# The one Application applied by hand, once, on a new cluster; Argo CD takes everything else
+# from apps/ in this repository, root itself included (apps/templates/root.yaml).
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
