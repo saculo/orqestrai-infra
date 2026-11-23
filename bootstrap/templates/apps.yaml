@@ -1,0 +1,34 @@
+# The apps: each folder in apps/ is one Application with the same name, deployed into the
+# namespace of that name. A new app is a new folder; nothing to add here.
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: apps
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - git:
+        repoURL: https://github.com/saculo/orqestrai-infra
+        revision: {{ .Values.revision }}
+        directories: [{ path: apps/* }]
+  syncPolicy:
+    preserveResourcesOnDeletion: true # removing an app's folder deletes its Application, not what runs
+  template:
+    metadata:
+      name: '{{`{{ .path.basename }}`}}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/saculo/orqestrai-infra
+        targetRevision: {{ .Values.revision }}
+        path: '{{`{{ .path.path }}`}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{`{{ .path.basename }}`}}'
+      syncPolicy:
+        automated: { prune: true, selfHeal: true }
+        retry: { limit: 10, backoff: { duration: 30s, maxDuration: 5m } }

@@ -1,0 +1,5 @@
+# The Argo CD Applications, as a chart so that one value sets the revision they follow: the
+# platform's, and the ApplicationSet that makes one for each folder in apps/.
+apiVersion: v2
+name: bootstrap
+version: 0.1.0

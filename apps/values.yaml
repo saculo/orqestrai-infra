@@ -1,3 +1,0 @@
-# The branch of this repository that Argo CD deploys (set by root.yaml). The Image Updater
-# commits to it.
-revision: main

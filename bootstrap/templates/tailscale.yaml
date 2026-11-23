@@ -1,5 +1,5 @@
 # The Tailscale operator: puts orq serve on the private network. Its OAuth
-# client (Secret operator-oauth) comes from OpenBao (platform/tailscale-oauth.yaml).
+# client (Secret operator-oauth) comes from OpenBao (platform/config/tailscale-oauth.yaml).
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
