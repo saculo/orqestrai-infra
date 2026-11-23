@@ -5,4 +5,4 @@ resources: [namespace.yaml, data.yaml, deployment.yaml]
 generators: [decrypt.yaml] # the Service and NetworkPolicy, decrypted by KSOPS
 images:
   - name: ghcr.io/saculo/orqestrai
-    newTag: 0.8.0
+    newTag: 0.9.0
